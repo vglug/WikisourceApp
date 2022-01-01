@@ -24,7 +24,7 @@ class ReaderActivity : AppCompatActivity() {
 
         val url = intent.extras?.getString("url") ?: "https://en.m.wikisource.org"
 
-        val hideDivList = listOf("mw-footer", "header-container", "page-actions-menu")
+        val hideDivList = listOf("mw-footer", "header-container", "page-actions-menu", "firstHeading", "page-heading", "minerva__tab-container")
 
         /*val webSettings: WebSettings = binding.webView.settings
         webSettings.javaScriptEnabled = true*/
