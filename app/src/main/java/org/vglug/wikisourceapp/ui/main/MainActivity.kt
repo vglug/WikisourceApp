@@ -1,4 +1,4 @@
-package org.vglug.wikisourceapp
+package org.vglug.wikisourceapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
@@ -6,7 +6,9 @@ import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.snackbar.Snackbar
+import org.vglug.wikisourceapp.R
 import org.vglug.wikisourceapp.databinding.ActivityMainBinding
+import org.vglug.wikisourceapp.ui.reader.ReaderActivity
 
 class MainActivity : AppCompatActivity() {
 

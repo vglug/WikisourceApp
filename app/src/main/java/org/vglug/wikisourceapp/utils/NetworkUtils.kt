@@ -1,4 +1,4 @@
-package com.manimarank.myweather.utils
+package org.vglug.wikisourceapp.utils
 
 import android.content.Context
 import android.net.ConnectivityManager

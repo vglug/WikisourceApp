@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import org.vglug.wikisourceapp.MainActivity;
+import org.vglug.wikisourceapp.ui.main.MainActivity;
 
 
 @SuppressLint("CustomSplashScreen")
