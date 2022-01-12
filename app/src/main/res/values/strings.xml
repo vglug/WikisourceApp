@@ -1,4 +1,10 @@
 <resources>
     <string name="app_name">WikisourceApp</string>
     <string name="action_settings">Settings</string>
+
+    <string-array name="language_list">
+        <item>Tamil</item>
+        <item>Bengali</item>
+        <item>English</item>
+    </string-array>
 </resources>

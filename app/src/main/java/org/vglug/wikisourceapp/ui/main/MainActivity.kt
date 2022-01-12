@@ -2,6 +2,7 @@ package org.vglug.wikisourceapp.ui.main
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -10,25 +11,33 @@ import org.vglug.wikisourceapp.R
 import org.vglug.wikisourceapp.databinding.ActivityMainBinding
 import org.vglug.wikisourceapp.ui.reader.ReaderActivity
 
+import android.widget.AutoCompleteTextView
+
+import android.widget.ArrayAdapter
+import org.vglug.wikisourceapp.data.LangUtils
+
+
 class MainActivity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityMainBinding
+    private val binding by lazy {
+        ActivityMainBinding.inflate(layoutInflater)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
 
-        binding.fab.setOnClickListener { view ->
-            Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                .setAction("Action", null).show()
-        }
 
         binding.apply {
-            btnTamil.setOnClickListener {
+            val adapter = ArrayAdapter(applicationContext, R.layout.item_language, LangUtils.getWikiLangList().map { it.name }.toTypedArray())
+            spinnerLanguage.setAdapter(adapter)
+            spinnerLanguage.setText(LangUtils.getWikiLangList().map { it.name }.first().toString(), false)
+            var selectedLangPos = 0
+            spinnerLanguage.setOnItemClickListener { _, _, position, _ -> selectedLangPos = position }
+
+            /*btnTamil.setOnClickListener {
                 val url = "https://ta.m.wikisource.org/wiki/பழங்காலத்_தமிழர்_வாணிகம்"
                 openUrl(url)
             }
@@ -41,20 +50,20 @@ class MainActivity : AppCompatActivity() {
             btnEnglish.setOnClickListener {
                 val url = "https://en.wikisource.org/wiki/The_Practice_of_Diplomacy"
                 openUrl(url)
-            }
+            }*/
 
-            btnOpenUrl.setOnClickListener {
-                if (editUrl.text?.isNotEmpty() == true) {
-                    openUrl(editUrl.text.toString())
+            btnSearch.setOnClickListener {
+                Log.e("TAG", "Lang Data: ${LangUtils.getWikiLangList().elementAt(selectedLangPos)}")
+                if (editBookTerm.text?.isNotEmpty() == true) {
+                    openUrl(editBookTerm.text.toString())
                 } else {
-                    Snackbar.make(it, "Please enter valid url", Snackbar.LENGTH_LONG).show()
+                    Snackbar.make(it, "Please enter valid search term", Snackbar.LENGTH_LONG).show()
                 }
             }
         }
     }
 
     private fun openUrl(url: String) {
-
         startActivity(Intent(applicationContext, ReaderActivity::class.java).apply {
             putExtra("url", url)
         })
