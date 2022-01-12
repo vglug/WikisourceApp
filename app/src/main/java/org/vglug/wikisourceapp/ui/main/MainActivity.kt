@@ -5,16 +5,15 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import org.vglug.wikisourceapp.R
+import org.vglug.wikisourceapp.data.LangUtils
+import org.vglug.wikisourceapp.data.model.BookListItem
 import org.vglug.wikisourceapp.databinding.ActivityMainBinding
 import org.vglug.wikisourceapp.ui.reader.ReaderActivity
-
-import android.widget.AutoCompleteTextView
-
-import android.widget.ArrayAdapter
-import org.vglug.wikisourceapp.data.LangUtils
 
 
 class MainActivity : AppCompatActivity() {
@@ -52,8 +51,19 @@ class MainActivity : AppCompatActivity() {
                 openUrl(url)
             }*/
 
+            // https://en.wikisource.org/w/api.php?action=opensearch&format=json&formatversion=2&search=Poem&namespace=0|100|102|106|114&limit=10
+
+            recyclerViewBooksList.layoutManager = LinearLayoutManager(this@MainActivity)
+            val bookListAdapter = BookListAdapter(ArrayList<BookListItem>().apply {
+                (1..100).forEach { l ->
+                    add(BookListItem("Book #${l}", null, "https://en.wikisource.org/wiki/The_Practice_of_Diplomacy"))
+                }
+            })
+            recyclerViewBooksList.adapter = bookListAdapter
+
             btnSearch.setOnClickListener {
                 Log.e("TAG", "Lang Data: ${LangUtils.getWikiLangList().elementAt(selectedLangPos)}")
+
                 if (editBookTerm.text?.isNotEmpty() == true) {
                     openUrl(editBookTerm.text.toString())
                 } else {
