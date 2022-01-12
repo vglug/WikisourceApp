@@ -1,19 +1,22 @@
 package org.vglug.wikisourceapp.ui.main
 
-import android.content.Intent
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
+import com.readystatesoftware.chuck.Chuck
 import org.vglug.wikisourceapp.R
 import org.vglug.wikisourceapp.data.LangUtils
 import org.vglug.wikisourceapp.data.model.BookListItem
 import org.vglug.wikisourceapp.databinding.ActivityMainBinding
-import org.vglug.wikisourceapp.ui.reader.ReaderActivity
+import org.vglug.wikisourceapp.extensions.makeGone
+import org.vglug.wikisourceapp.extensions.makeVisible
 
 
 class MainActivity : AppCompatActivity() {
@@ -22,75 +25,83 @@ class MainActivity : AppCompatActivity() {
         ActivityMainBinding.inflate(layoutInflater)
     }
 
+    lateinit var viewModel: MainViewModel
+
+    lateinit var bookListAdapter: BookListAdapter
+    private val bookList = ArrayList<BookListItem>()
+
+    @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
         setSupportActionBar(binding.toolbar)
 
-
-
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         binding.apply {
             val adapter = ArrayAdapter(applicationContext, R.layout.item_language, LangUtils.getWikiLangList().map { it.name }.toTypedArray())
             spinnerLanguage.setAdapter(adapter)
             spinnerLanguage.setText(LangUtils.getWikiLangList().map { it.name }.first().toString(), false)
             var selectedLangPos = 0
-            spinnerLanguage.setOnItemClickListener { _, _, position, _ -> selectedLangPos = position }
-
-            /*btnTamil.setOnClickListener {
-                val url = "https://ta.m.wikisource.org/wiki/பழங்காலத்_தமிழர்_வாணிகம்"
-                openUrl(url)
+            spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
+                selectedLangPos = position
+                if (editBookTerm.text?.isNotEmpty() == true)
+                    btnSearch.performClick()
             }
-
-            btnBengali.setOnClickListener {
-                val url = "https://bn.wikisource.org/wiki/ঘরে-বাইরে"
-                openUrl(url)
-            }
-
-            btnEnglish.setOnClickListener {
-                val url = "https://en.wikisource.org/wiki/The_Practice_of_Diplomacy"
-                openUrl(url)
-            }*/
-
-            // https://en.wikisource.org/w/api.php?action=opensearch&format=json&formatversion=2&search=Poem&namespace=0|100|102|106|114&limit=10
 
             recyclerViewBooksList.layoutManager = LinearLayoutManager(this@MainActivity)
-            val bookListAdapter = BookListAdapter(ArrayList<BookListItem>().apply {
-                (1..100).forEach { l ->
-                    add(BookListItem("Book #${l}", null, "https://en.wikisource.org/wiki/The_Practice_of_Diplomacy"))
+            bookListAdapter = BookListAdapter(bookList)
+            recyclerViewBooksList.adapter = bookListAdapter
+
+            viewModel.searchBookData.observe(this@MainActivity, {
+                bookList.clear()
+                if (it.isNotEmpty()) {
+                    bookList.addAll(it)
+                    bookListAdapter.notifyDataSetChanged()
                 }
             })
-            recyclerViewBooksList.adapter = bookListAdapter
+
+            viewModel.apiLoading.observe(this@MainActivity, {
+                progress.makeGone()
+                recyclerViewBooksList.makeGone()
+                txtError.makeGone()
+                when {
+                    it -> {
+                        progress.makeVisible()
+                    }
+                    bookList.isEmpty() -> {
+                        txtError.makeVisible()
+                    }
+                    else -> {
+                        recyclerViewBooksList.makeVisible()
+                    }
+                }
+            })
 
             btnSearch.setOnClickListener {
                 Log.e("TAG", "Lang Data: ${LangUtils.getWikiLangList().elementAt(selectedLangPos)}")
-
                 if (editBookTerm.text?.isNotEmpty() == true) {
-                    openUrl(editBookTerm.text.toString())
+                    val code = LangUtils.getWikiLangList().elementAt(selectedLangPos).code
+                    viewModel.fetchBookList(applicationContext, code, editBookTerm.text.toString())
                 } else {
                     Snackbar.make(it, "Please enter valid search term", Snackbar.LENGTH_LONG).show()
                 }
             }
+
+
         }
     }
 
-    private fun openUrl(url: String) {
-        startActivity(Intent(applicationContext, ReaderActivity::class.java).apply {
-            putExtra("url", url)
-        })
-    }
-
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.menu_main, menu)
         return true
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_settings -> {
+                startActivity(Chuck.getLaunchIntent(applicationContext))
+                return true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
