@@ -1,4 +1,4 @@
-package org.vglug.wikisourceapp
+package org.vglug.wikisourceapp.ui.reader
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -9,6 +9,7 @@ import android.webkit.WebSettings
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import androidx.appcompat.app.AppCompatActivity
+import org.vglug.wikisourceapp.R
 import org.vglug.wikisourceapp.databinding.ActivityReaderBinding
 
 
@@ -24,7 +25,7 @@ class ReaderActivity : AppCompatActivity() {
 
         val url = intent.extras?.getString("url") ?: "https://en.m.wikisource.org"
 
-        val hideDivList = listOf("mw-footer", "header-container", "page-actions-menu")
+        val hideDivList = listOf("mw-footer", "header-container", "page-actions-menu", "firstHeading", "page-heading", "minerva__tab-container")
 
         /*val webSettings: WebSettings = binding.webView.settings
         webSettings.javaScriptEnabled = true*/
