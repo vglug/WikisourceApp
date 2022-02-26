@@ -12,11 +12,12 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import com.readystatesoftware.chuck.Chuck
 import org.vglug.wikisourceapp.R
-import org.vglug.wikisourceapp.data.LangUtils
 import org.vglug.wikisourceapp.data.model.BookListItem
+import org.vglug.wikisourceapp.data.model.language.LanguageData
 import org.vglug.wikisourceapp.databinding.ActivityMainBinding
 import org.vglug.wikisourceapp.extensions.makeGone
 import org.vglug.wikisourceapp.extensions.makeVisible
+import org.vglug.wikisourceapp.utils.AppConstants
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,6 +31,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var bookListAdapter: BookListAdapter
     private val bookList = ArrayList<BookListItem>()
 
+    private var selectedLanguageData: LanguageData? = null
+
     @SuppressLint("NotifyDataSetChanged")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,20 +40,16 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(binding.toolbar)
 
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
+        viewModel.fetchLanguages(applicationContext)
         binding.apply {
-            val adapter = ArrayAdapter(applicationContext, R.layout.item_language, LangUtils.getWikiLangList().map { it.name }.toTypedArray())
-            spinnerLanguage.setAdapter(adapter)
-            spinnerLanguage.setText(LangUtils.getWikiLangList().map { it.name }.first().toString(), false)
-            var selectedLangPos = 0
-            spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
-                selectedLangPos = position
-                if (editBookTerm.text?.isNotEmpty() == true)
-                    btnSearch.performClick()
-            }
 
             recyclerViewBooksList.layoutManager = LinearLayoutManager(this@MainActivity)
             bookListAdapter = BookListAdapter(bookList)
             recyclerViewBooksList.adapter = bookListAdapter
+
+            viewModel.languageData.observe(this@MainActivity, {
+                setupSpinner()
+            })
 
             viewModel.searchBookData.observe(this@MainActivity, {
                 bookList.clear()
@@ -78,9 +77,9 @@ class MainActivity : AppCompatActivity() {
             })
 
             btnSearch.setOnClickListener {
-                Log.e("TAG", "Lang Data: ${LangUtils.getWikiLangList().elementAt(selectedLangPos)}")
+                Log.e("TAG", "Lang Data: ${selectedLanguageData}")
                 if (editBookTerm.text?.isNotEmpty() == true) {
-                    val code = LangUtils.getWikiLangList().elementAt(selectedLangPos).code
+                    val code = selectedLanguageData?.code ?: AppConstants.DEFAULT_LANGUAGE_CODE
                     viewModel.fetchBookList(applicationContext, code, editBookTerm.text.toString())
                 } else {
                     Snackbar.make(it, "Please enter valid search term", Snackbar.LENGTH_LONG).show()
@@ -88,6 +87,21 @@ class MainActivity : AppCompatActivity() {
             }
 
 
+        }
+    }
+
+    private fun setupSpinner() {
+        binding.run {
+            val languageDataForSpinner = viewModel.languageData.value?.map { it.lang + "(${it.code})"} ?: ArrayList()
+            val adapter = ArrayAdapter(applicationContext, R.layout.item_language, languageDataForSpinner.toTypedArray())
+            spinnerLanguage.setAdapter(adapter)
+            spinnerLanguage.setText(languageDataForSpinner.firstOrNull().toString(), false)
+            selectedLanguageData = viewModel.languageData.value?.firstOrNull()
+            spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
+                selectedLanguageData = viewModel.languageData.value?.elementAtOrNull(position)
+                if (editBookTerm.text?.isNotEmpty() == true)
+                    btnSearch.performClick()
+            }
         }
     }
 
