@@ -11,6 +11,7 @@ import androidx.navigation.ui.setupWithNavController
 import com.manimarank.wikisourceapp.R
 import com.manimarank.wikisourceapp.data.model.language.LanguageData
 import com.manimarank.wikisourceapp.databinding.ActivityMainBinding
+import com.manimarank.wikisourceapp.utils.AppConstants
 
 class MainActivity : AppCompatActivity() {
 
@@ -57,6 +58,7 @@ class MainActivity : AppCompatActivity() {
             spinnerLanguage.setText(languageDataForSpinner.firstOrNull().toString(), false)
             spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
                 selectedLanguageData = viewModel.languageData.value?.elementAtOrNull(position)
+                AppConstants.DEFAULT_LANGUAGE_CODE = selectedLanguageData?.code ?: AppConstants.DEFAULT_LANGUAGE_CODE
             }
         }
     }
