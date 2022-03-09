@@ -4,15 +4,20 @@ import android.os.Bundle
 import android.widget.ArrayAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.manimarank.wikisourceapp.R
+import com.manimarank.wikisourceapp.data.model.language.LanguageData
 import com.manimarank.wikisourceapp.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    lateinit var viewModel: MainViewModel
+    private var selectedLanguageData: LanguageData? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,17 +37,26 @@ class MainActivity : AppCompatActivity() {
         )
         // setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         setupLanguageSpinner()
+        initLiveDataObservers()
+    }
+
+    private fun initLiveDataObservers() {
+        viewModel.languageData.observe(this@MainActivity, {
+            setupLanguageSpinner()
+        })
+        viewModel.fetchLanguages(applicationContext)
     }
 
     private fun setupLanguageSpinner() {
         binding.run {
-            val languageDataForSpinner = listOf("English", "Tamil", "BengaliMANIMMMMMMMMMMMMMMMMMMMMARAN")
+            val languageDataForSpinner = viewModel.languageData.value?.map { it.lang + "(${it.code})"} ?: ArrayList()
             val adapter = ArrayAdapter(applicationContext, R.layout.item_language, languageDataForSpinner.toTypedArray())
             spinnerLanguage.setAdapter(adapter)
             spinnerLanguage.setText(languageDataForSpinner.firstOrNull().toString(), false)
             spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
-
+                selectedLanguageData = viewModel.languageData.value?.elementAtOrNull(position)
             }
         }
     }
