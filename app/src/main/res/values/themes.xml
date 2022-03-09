@@ -24,6 +24,12 @@
         <item name="windowNoTitle">true</item>
     </style>
 
+    <style name="Theme.WikisourceApp.ReaderTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
     <style name="Theme.WikiSourceApp.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.WikiSourceApp.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
