@@ -1,11 +1,11 @@
 package com.manimarank.wikisourceapp.ui.main
 
 import android.os.Bundle
+import android.widget.ArrayAdapter
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.manimarank.wikisourceapp.R
 import com.manimarank.wikisourceapp.databinding.ActivityMainBinding
@@ -30,7 +30,20 @@ class MainActivity : AppCompatActivity() {
                 R.id.navigation_home, R.id.navigation_search, R.id.navigation_settings
             )
         )
-        setupActionBarWithNavController(navController, appBarConfiguration)
+        // setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
+        setupLanguageSpinner()
+    }
+
+    private fun setupLanguageSpinner() {
+        binding.run {
+            val languageDataForSpinner = listOf("English", "Tamil", "BengaliMANIMMMMMMMMMMMMMMMMMMMMARAN")
+            val adapter = ArrayAdapter(applicationContext, R.layout.item_language, languageDataForSpinner.toTypedArray())
+            spinnerLanguage.setAdapter(adapter)
+            spinnerLanguage.setText(languageDataForSpinner.firstOrNull().toString(), false)
+            spinnerLanguage.setOnItemClickListener { _, _, position, _ ->
+
+            }
+        }
     }
 }
