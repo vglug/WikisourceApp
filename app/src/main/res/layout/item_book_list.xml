@@ -24,7 +24,7 @@
         android:ellipsize="end" />
 
     <View
-        android:background="#C3C3C3"
+        android:background="@color/gray_border"
         android:layout_width="match_parent"
         android:layout_height="0.5dp"/>
 

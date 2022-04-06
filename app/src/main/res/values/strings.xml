@@ -1,10 +1,7 @@
 <resources>
     <string name="app_name">WikisourceApp</string>
-    <string name="action_settings">Settings</string>
-
-    <string-array name="language_list">
-        <item>Tamil</item>
-        <item>Bengali</item>
-        <item>English</item>
-    </string-array>
+    <string name="title_home">Home</string>
+    <string name="title_search">Search</string>
+    <string name="title_settings">Settings</string>
+    <string name="search">Search</string>
 </resources>
